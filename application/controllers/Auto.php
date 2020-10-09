@@ -636,13 +636,13 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                     $sugg_po = (($avg_off_take > $filter_off_take ? $avg_off_take : 0) * $item[$des->product_id]['avg_off_take_x']) - $qoh_;
 
                      
-                    echo '</br>'.'</br>';
+                   /* echo '</br>'.'</br>';
                     echo '</br>'.'</br>';
                     $des->product_id.'<<<<<<<<pro';
                    // echo  var_dump($comp_details);
 
                     echo '</br>'.'</br>';
-                    echo '</br>'.'</br>';
+                    echo '</br>'.'</br>';*/
 
                     if ($item[$des->product_id]['total_sales'] < $filter_sales) $sugg_po  = 0;
                     $sugg_po = ceil($sugg_po-$rounding_off);
@@ -743,9 +743,9 @@ provided that both dates are after 1970. Also only works for dates up to the yea
 
  public function index(){
        $user = null;
-         echo date("Y-m-d h:i:s").PHP_EOL;
-         $supplier = null;
-        $supplier = "REBICO001";
+        echo date("Y-m-d h:i:s").PHP_EOL;
+        $supplier = null;
+       // $supplier = "REBICO001";
 		$excluded_vendors=array();
 		$excluded_vendors = $this->auto->get_frequency_excluded();
 		//$excluded_vendors=implode(",", $excluded_vendors);
