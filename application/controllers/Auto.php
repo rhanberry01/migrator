@@ -555,7 +555,7 @@ provided that both dates are after 1970. Also only works for dates up to the yea
           # E WHOLESALES PROTECTION ORDER #  
 
             $avg_offtake_ls = array();
-
+            $computations = array();
 
             foreach ($divs as $des) {
                 $computation_history =  0;
