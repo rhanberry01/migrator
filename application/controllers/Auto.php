@@ -559,8 +559,11 @@ provided that both dates are after 1970. Also only works for dates up to the yea
 
             foreach ($divs as $des) {
                 $computation_history =  0;
+                $avg_off_take = 0;
                 $comp_details = array();
                 if(isset($item[$des->product_id])){
+
+                   // echo $des->product_id.'lllllllllllllllllllllll';
 
                     $item[$des->product_id]['divisor'] = $des->divisor;
                     $item[$des->product_id]['total_sales'] = $des->total_sales/$item[$des->product_id]['qty_by'];
@@ -569,7 +572,8 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                      $comp_details = array('type'=>0,
                                           'ed' => 0,
                                           'ced' => 0,
-                                          'avg_off_take_comp' => $item[$des->product_id]['total_sales'].'/'.$item[$des->product_id]['divisor']    
+                                          'avg_off_take_comp' => $item[$des->product_id]['total_sales'].'/'.$item[$des->product_id]['divisor']
+    
                                             );
 
                      ## wholesale  protection order ##
@@ -581,7 +585,7 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                         $comp_details = array('type'=>1,
                                               'ed' => $ed_items[$des->product_id]['eliminated_dates'],
                                               'ced' => $ed_items[$des->product_id]['eliminated_days'],
-                                              'avg_off_take_comp' => '(('.$sweds_items[$des->product_id]['offtakewitheliminateddays'].'/'.$item[$des->product_id]['qty_by'].')/('.$item[$des->product_id]['divisor'].'-'.$ed_items[$des->product_id]['eliminated_days'].'))'     
+                                              'avg_off_take_comp' => '(('.$sweds_items[$des->product_id]['offtakewitheliminateddays'].'/'.$item[$des->product_id]['qty_by'].')/('.$item[$des->product_id]['divisor'].'-'.$ed_items[$des->product_id]['eliminated_days'].'))'   
                                                 );
 
                         $avg_off_take = (($sweds_items[$des->product_id]['offtakewitheliminateddays']/$item[$des->product_id]['qty_by'])/($item[$des->product_id]['divisor']-$ed_items[$des->product_id]['eliminated_days']));
@@ -609,7 +613,8 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                              $comp_details = array('type'=>2,
                                                    'ed' => 0,
                                                    'ced' => 0,
-                                                   'avg_off_take_comp' => $text.' offtake:'.$last_ave_offtake    
+                                                   'avg_off_take_comp' => $text.' offtake:'.$last_ave_offtake
+                                                       
                                                     );
                              $avg_off_take = $last_ave_offtake;
                         }
@@ -628,13 +633,13 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                     $item[$des->product_id]['avg_off_take'] = $avg_off_take;
                     $qoh_ = $item[$des->product_id]['qoh'] > 0 ? $item[$des->product_id]['qoh'] : 0;
                      
-                    $sugg_po = (($avg_off_take > $filter_off_take ? $avg_off_take : 0)* $item[$des->product_id]['avg_off_take_x']) - $qoh_;
+                    $sugg_po = (($avg_off_take > $filter_off_take ? $avg_off_take : 0) * $item[$des->product_id]['avg_off_take_x']) - $qoh_;
 
-                    $comp_details['sugg_po'] = '('.($avg_off_take > $filter_off_take ? $avg_off_take : 0).'*'.$item[$des->product_id]['avg_off_take_x'].')-'.$qoh_;
-        
+                     
                     echo '</br>'.'</br>';
                     echo '</br>'.'</br>';
-                    echo  var_dump($comp_details);
+                    $des->product_id.'<<<<<<<<pro';
+                   // echo  var_dump($comp_details);
 
                     echo '</br>'.'</br>';
                     echo '</br>'.'</br>';
@@ -643,18 +648,25 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                     $sugg_po = ceil($sugg_po-$rounding_off);
                     if($sugg_po < 0) $sugg_po  = 0;
 
+                    $min_purchase_piece_ = 0;
+
                     if(in_array(strtolower($item[$des->product_id]['uom']), $uom_piece)){
                         $qty_times = $min_purchase_piece;
                         $sugg_po = $sugg_po/$qty_times;
                         $sugg_po = ceil($sugg_po);
                         $sugg_po = $sugg_po * $qty_times;
+                        $min_purchase_piece_ = $qty_times;
                     }
                     else if( isset($truckLoad[$item[$des->product_id]['uom']])  ){
                         $qty_times = $truckLoad[$item[$des->product_id]['uom']];
                         $sugg_po = $sugg_po/$qty_times;
                         $sugg_po = ceil($sugg_po);
                         $sugg_po = $sugg_po * $qty_times;
+                        $min_purchase_piece_ = $qty_times;
                     }
+
+
+                    $comp_details['sugg_po'] = '('.($avg_off_take > $filter_off_take ? $avg_off_take : 0).'*'.$item[$des->product_id]['avg_off_take_x'].')-'.$qoh_." * ".$min_purchase_piece_;
 
                     $qty = $sugg_po;
                     
@@ -679,7 +691,11 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                                             "product_id"=>$des->product_id,
                                             "details"=>json_encode($comp_details),
                                             "date_added"=> date('Y-m-d'),
-                                            "branch"=>BRANCH_USE
+                                            "branch"=>BRANCH_USE,
+                                            'description'=> $item[$des->product_id]['description'],
+                                            'stock_id'=> $item[$des->product_id]['barcode'],
+                                            'uom' => $item[$des->product_id]['uom'], 
+                                            'sugg_po'=>$sugg_po
                                             );
                     ## end ##
 

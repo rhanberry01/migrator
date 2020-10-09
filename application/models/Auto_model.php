@@ -187,6 +187,8 @@ class Auto_model extends CI_Model {
 			on a.product_id = b.product_id 
 			HAVING  ((sales_perday < monthlyofftakecondition) and (sales_perday < ".$pcs_condition."))
 			) as f GROUP BY f.product_id";
+
+		//echo $sql;
 		$res = $this->db->query($sql);
 	    $res = $res->result();
 	    return $res;
