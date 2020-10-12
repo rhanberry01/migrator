@@ -757,8 +757,8 @@ provided that both dates are after 1970. Also only works for dates up to the yea
         $day_last = $last_day[2];
         $month = date('F');
         $year = date('Y');
-        $dayToday = date('l',strtotime('2020-08-28')); //date('Y-m-d')
-        $date_today = '2020-08-28';// date('Y-m-d');
+        $dayToday = date('Y-m-d')
+        $date_today =  date('Y-m-d');
         $special_array = array("F1", "F5", "F6", "F7");
         $to = TO;
         $from = FROM;
