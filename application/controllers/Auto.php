@@ -409,6 +409,7 @@ provided that both dates are after 1970. Also only works for dates up to the yea
         $to = $settings["to"];
         $supplier_code = $settings["supplier"]["code"];
         $branch_code = BRANCH_USE;
+        echo $supplier_code.PHP_EOL;
         $supp_items = $this->auto->get_srs_suppliers_item_details(null,$supplier_code);
         $se_items = array();
         $item = array();
@@ -745,7 +746,7 @@ provided that both dates are after 1970. Also only works for dates up to the yea
        $user = null;
         echo date("Y-m-d h:i:s").PHP_EOL;
         $supplier = null;
-       // $supplier = "REBICO001";
+       // $supplier = "DELDIC001";
 		$excluded_vendors=array();
 		$excluded_vendors = $this->auto->get_frequency_excluded();
 		//$excluded_vendors=implode(",", $excluded_vendors);

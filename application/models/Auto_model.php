@@ -185,10 +185,10 @@ class Auto_model extends CI_Model {
 			GROUP BY `product_history`.`product_id`
 			) as b 
 			on a.product_id = b.product_id 
-			HAVING  ((sales_perday < monthlyofftakecondition) and (sales_perday < ".$pcs_condition."))
+			HAVING  ((sales_perday < monthlyofftakecondition))
 			) as f GROUP BY f.product_id";
 
-		//echo $sql;
+		//echo $sql.PHP_EOL;
 		$res = $this->db->query($sql);
 	    $res = $res->result();
 	    return $res;
