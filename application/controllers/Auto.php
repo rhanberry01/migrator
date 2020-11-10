@@ -636,11 +636,11 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                      
                     $sugg_po = (($avg_off_take > $filter_off_take ? $avg_off_take : 0) * $item[$des->product_id]['avg_off_take_x']) - $qoh_;
 
-                     
-                   /* echo '</br>'.'</br>';
+                    /* echo $sugg_po.'<<-seugg_po';
+                    echo '</br>'.'</br>';
                     echo '</br>'.'</br>';
                     $des->product_id.'<<<<<<<<pro';
-                   // echo  var_dump($comp_details);
+                    echo  var_dump($comp_details);
 
                     echo '</br>'.'</br>';
                     echo '</br>'.'</br>';*/
@@ -649,25 +649,29 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                     $sugg_po = ceil($sugg_po-$rounding_off);
                     if($sugg_po < 0) $sugg_po  = 0;
 
-                    $min_purchase_piece_ = 0;
-
+                 
+                   
+                    $additional_computation ="";
                     if(in_array(strtolower($item[$des->product_id]['uom']), $uom_piece)){
                         $qty_times = $min_purchase_piece;
                         $sugg_po = $sugg_po/$qty_times;
                         $sugg_po = ceil($sugg_po);
                         $sugg_po = $sugg_po * $qty_times;
-                        $min_purchase_piece_ = $qty_times;
+                       
+                       $additional_computation = "MP: Ceil(Suggested PO / ".$qty_times.') * '.$qty_times;
                     }
                     else if( isset($truckLoad[$item[$des->product_id]['uom']])  ){
                         $qty_times = $truckLoad[$item[$des->product_id]['uom']];
                         $sugg_po = $sugg_po/$qty_times;
                         $sugg_po = ceil($sugg_po);
                         $sugg_po = $sugg_po * $qty_times;
-                        $min_purchase_piece_ = $qty_times;
+                        
+                       $additional_computation = "TL: Ceil(Suggested PO / ".$qty_times.') * '.$qty_times;
+                       
                     }
 
 
-                    $comp_details['sugg_po'] = '('.($avg_off_take > $filter_off_take ? $avg_off_take : 0).'*'.$item[$des->product_id]['avg_off_take_x'].')-'.$qoh_." * ".$min_purchase_piece_;
+                    $comp_details['sugg_po'] = '(('.($avg_off_take > $filter_off_take ? $avg_off_take : 0).'*'.$item[$des->product_id]['avg_off_take_x'].')-'.$qoh_.") : ".$additional_computation;
 
                     $qty = $sugg_po;
                     
@@ -735,6 +739,8 @@ provided that both dates are after 1970. Also only works for dates up to the yea
             $item[$item_id] = $det;
         }
 
+       //echo var_dump($computations);
+
 
         $this->session->set_userdata('po_cart',$item); 
         $this->session->set_userdata('avg_offtake_ls',$avg_offtake_ls);
@@ -746,7 +752,7 @@ provided that both dates are after 1970. Also only works for dates up to the yea
        $user = null;
         echo date("Y-m-d h:i:s").PHP_EOL;
         $supplier = null;
-       // $supplier = "DELDIC001";
+       // $supplier = "REVMAI002";
 		$excluded_vendors=array();
 		$excluded_vendors = $this->auto->get_frequency_excluded();
 		//$excluded_vendors=implode(",", $excluded_vendors);
