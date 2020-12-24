@@ -221,17 +221,90 @@ public function show_branch(){
         return date('Y-m-d', strtotime($date));
      }
 
+     public function transfer_received_history_to_main(){
+        $this->transfer_received_history_to_main(); 
+     }
+
      public function generate_everyday(){
 
-        $this->create_product_history();
-        echo 'history created';
-        $this->create_received_history(); 
+       $this->create_product_history();
+       echo 'history created';
+       $this->create_received_history(); 
        // $this->index();
      }
 
      ##recceived and po history##
      ##rhan##
      ##start##
+     public function transfer_received_history_to_main($date = null){
+
+        $branch_code = BRANCH_USE;
+        $dates = $this->auto->get_unthrow_dates($branch_code); 
+
+        foreach ($dates as $d ) {
+            $limit = $d->counts;
+            $dates = $d->dt;
+          
+           $record = $this->auto->get_received_history_past_30($branch_code,$limit,$dates); 
+           $received_history = array();
+           $ids = array();
+
+        $sql_=  "INSERT IGNORE INTO central_received_history VALUES";
+
+        foreach ($record as $rd ) {
+            # code...
+            $received_history[] = "('".$rd->PurchaseOrderNo."',
+                                    '".$rd->ReceivingID."',
+                                    '".$rd->VendorCode."',
+                                    '".$rd->ProductID."',
+                                    '".$rd->totalqtypurchased."',
+                                    '".$rd->po_qty."',
+                                    '".$rd->qty."',
+                                    '".$rd->pack."',
+                                    '".$rd->dateposted."',
+                                    '".$branch_code."')";
+
+        }
+
+        $sql_up =  "UPDATE received_history SET throw = 1 where cast(dateposted as date) ='".$dates."' ";
+
+        $sql_ = $sql_ . implode(",",$received_history);
+
+
+        $insert = $this->auto->insert_to_central($sql_);
+          if($insert){
+            $this->auto->upd_received($sql_up);
+             echo "Throwing Received History - ".$dates."- ;count:".$limit.PHP_EOL;
+          }
+        }
+
+        /*$record = $this->auto->get_received_history_past_30($branch_code); 
+        $received_history = array();
+        $ids = array();
+        $sql_=  "INSERT IGNORE INTO central_received_history VALUES";
+        foreach ($record as $rd ) {
+            # code...
+            $received_history[] = $rd->PurchaseOrderNo
+            $received_history[] = "('".$rd->PurchaseOrderNo."',
+                                    '".$rd->ReceivingID."',
+                                    '".$rd->VendorCode."',
+                                    '".$rd->ProductID."',
+                                    '".$rd->totalqtypurchased."',
+                                    '".$rd->po_qty."',
+                                    '".$rd->qty."',
+                                    '".$rd->pack."',
+                                    '".$rd->dateposted."',
+                                    '".$branch_code."')";
+
+        }
+
+        $sql_ = $sql_ . implode(",",$received_history);
+
+        echo $sql_;
+        //$this->auto->insert_to_central($sql_);*/
+
+     }
+
      public function create_received_history($date = null){
 
         $record = $this->auto->get_received_purchases($date); 

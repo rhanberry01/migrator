@@ -27,7 +27,39 @@ class Auto_model extends CI_Model {
 
 
 
+	public function get_unthrow_dates(){
+
+		$this->db = $this->load->database('default', TRUE);
+		$sql = "SELECT cast(dateposted as date) as dt,count(id) as counts  FROM `received_history` 
+				where throw = 0 and cast(dateposted as date) >='2020-01-01' GROUP BY cast(dateposted as date) ";
+		$query = $this->db->query($sql);
+	    $result = $query->result();
+	    return $result;
+	}
+	public function get_received_history_past_30($branch_code,$limit,$dates){
+		$this->db = $this->load->database('default', TRUE);
+		$sql = "select 
+				id,
+				PurchaseOrderNo,
+				ReceivingID,
+				VendorCode,
+				ProductID,
+				totalqtypurchased,
+				po_qty,
+				qty,
+				pack,
+				dateposted,
+				'".$branch_code."'
+				FROM  received_history where cast(dateposted as date) ='".$dates."' and throw = 0 LIMIT $limit
+";
+//echo $sql;
+
+		$query = $this->db->query($sql);
+	    $result = $query->result();
+	    return $result;
+	}
 	public function get_received_history($po = null){
+
 		$this->db = $this->load->database('default', TRUE);
 		$sql = "select trans_date,stock_id,ord_qty,IFNULL(qty,0) as qty
 				from po_history as poh
@@ -86,6 +118,23 @@ class Auto_model extends CI_Model {
 	    $res = $res->result_array();
 	    return $res;
 	} 
+
+
+
+	public function insert_to_central($received_history){
+    	$this->db = $this->load->database("main_po", true);
+	    $res = $this->db->query($received_history);
+	    if($res){
+	    	return true;
+	    }else{
+	    	return false;
+	    }  	
+	}
+
+public function upd_received($sql){
+    	$this->db = $this->load->database("default", true);
+	    $res = $this->db->query($sql);  	
+	}
 
 
 
