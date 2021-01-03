@@ -165,7 +165,7 @@ public function upd_received($sql){
 				INNER JOIN purch_orders as pch
 				on r.trans_id = pch.order_no and r.trans_type = pch.trans_type
 				INNER JOIN purch_order_details as pchd  on  pchd.trans_type = pch.trans_type and pchd.order_no = pch.order_no
-				where pch.trans_date >='".date('Y-m-d',strtotime('-30 days'))."' and r.trans_type ='16' and pch.auto_generate ='1' and status != 2  
+				where pch.trans_date >='".date('Y-m-d',strtotime('-30 days'))."' and r.trans_type ='16'  and status != 2  
 				and pch.br_code ='".$branch_code."'";
 		$res = $this->db->query($sql);
 	    $res = $res->result_array();
