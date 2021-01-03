@@ -222,7 +222,7 @@ public function show_branch(){
      }
 
      public function transfer_received_history_to_main(){
-        $this->transfer_received_history_to_main(); 
+        $this->transfer_received_history_to_main_(); 
      }
 
      public function generate_everyday(){
@@ -236,7 +236,7 @@ public function show_branch(){
      ##recceived and po history##
      ##rhan##
      ##start##
-     public function transfer_received_history_to_main($date = null){
+     public function transfer_received_history_to_main_($date = null){
 
         $branch_code = BRANCH_USE;
         $dates = $this->auto->get_unthrow_dates($branch_code); 
