@@ -15,7 +15,7 @@ class Main_model extends CI_Model {
 		$this->db->where("throw !=", 1);
 		$this->db->order_by("id");
 		// eto ung ichchange sa main to branch
-		$this->db->where("branch_code", "SRN");
+		$this->db->where("branch_code", BR);
 		$result = $this->db->get("branch_updates");
 		$result = $result->result_array();
 		return $result;
