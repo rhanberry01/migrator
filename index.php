@@ -67,11 +67,12 @@ switch ('development')
 {
 	case 'development':
 		//error_reporting(-1);
-		error_reporting(E_ALL);
-		ini_set('display_errors', 1);
+		//error_reporting(E_ALL);
+		//ini_set('display_errors', 1);
+	ini_set('display_errors', 0);
 	break;
 
-	case 'testing':
+	case 'testing':ini_set('display_errors', 0);
 	case 'production':
 		ini_set('display_errors', 0);
 		if (version_compare(PHP_VERSION, '5.3', '>='))
@@ -85,6 +86,7 @@ switch ('development')
 	break;
 
 	default:
+		ini_set('display_errors', 0);
 		header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);
 		echo 'The application environment is not set correctly.';
 		exit(1); // EXIT_ERROR
