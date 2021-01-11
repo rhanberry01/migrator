@@ -620,6 +620,17 @@ function overstock_offtake($from,$to,$items=array(), $days = 30){
                 } else return false;
             } return false;
     } 
+    
+
+    public function execute_branch_to_main_history($database,$sql){
+            $this->db = $this->load->database($database, TRUE);
+            $res = $this->db->query($sql);
+            if($res){
+            	return true;
+            }
+    } 
+
+
    
 
     public function throw_po(){

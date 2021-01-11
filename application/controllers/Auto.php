@@ -335,15 +335,42 @@ public function throw_po(){
 public function throw_po_computation_history(){
     $data = $this->auto->throw_po_computation_history(); 
     $bool = (count($data) > 0) ? true : false;
-    while($bool){
+    $count = 0;
+  while($bool){
+    $arrs = array();
+            $sql = 'INSERT IGNORE INTO computations_history (supplier_code,product_id,details,trandate,date_added,throw,branch,description,stock_id,uom,sugg_po) VALUES';
+            $sql_up = "UPDATE computations_history SET throw = 1 WHERE id IN ";
+
         foreach($data as $row){
             $id = $row["id"];
-            unset($row["id"]);
-            $this->auto->execute_queue($row, $id,"computations_history");
+            echo $count++.PHP_EOL;
+            $arrs[] = "(
+                      '".$row['supplier_code']."',
+                      '".$row['product_id']."',
+                      '".$row['details']."',
+                      '".$row['trandate']."',
+                      '".$row['date_added']."',
+                      ".$row['throw'].",
+                      '".$row['branch']."',
+                      '".$row['description']."',
+                      '".$row['stock_id']."',
+                      '".$row['uom']."',
+                      ".$row['sugg_po'].")";
+              $ids[] = $row["id"];
+
         } 
+       
+      
+        $main = $this->auto->execute_branch_to_main_history('main_po', $sql.implode(',', $arrs));
+        if($main){
+          $test = $this->auto->execute_branch_to_main_history('default', $sql_up."(".implode(',', $ids).")");
+          
+        }
+
         $data = $this->auto->throw_po_computation_history(); 
         $bool = (count($data) > 0) ? true : false; 
-    } 
+
+   } 
 }
 
 
