@@ -225,11 +225,16 @@ public function show_branch(){
         $this->transfer_received_history_to_main_(); 
      }
 
+     public function generate_received_history(){
+       $this->create_received_history(); 
+       echo 'history created';
+     }
+
+
      public function generate_everyday(){
 
        $this->create_product_history();
        echo 'history created';
-       $this->create_received_history(); 
        // $this->index();
      }
 
