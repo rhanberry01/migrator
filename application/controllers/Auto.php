@@ -619,7 +619,7 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                 $se_items_array ="''";
             }
             $pcs_condition = 50;
-            $multiplicator_condition = 3;
+            $multiplicator_condition = 10;
              ## rhan 8282020 ##
 
 
