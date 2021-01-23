@@ -347,9 +347,11 @@ class Welcome extends CI_Controller {
 				if($id_check == 2) $where["(id%2)"] = 0;
 				else if($id_check == 1) $where["(id%2)"] =1;
 				$query = $this->Migration_model->select_where("queue", $where, "default", true, "id");
-				foreach( $query as $i => $record ) { 
-					$res = $this->Migration_model->execute_queue($record["sql_statement"] ,$record["id"]); 
-					if($res == false)  break;
+				foreach( $query as $i => $record ) {
+					if($record){
+						$res = $this->Migration_model->execute_queue($record["sql_statement"] ,$record["id"]); 
+						if($res == false)  break;
+					} 
 				}
 				$bool = $this->Migration_model->select_count_queue_off($where);
 			}
