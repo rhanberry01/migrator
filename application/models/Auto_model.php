@@ -685,12 +685,16 @@ function overstock_offtake($from,$to,$items=array(), $days = 30){
 	}
 
 
-	function must_have_seven_days_sale(){
+	function must_have_seven_days_sale($date = null){
 		$this->db = $this->load->database("default", true);
-		$past_seven_days =  date('Y-m-d', strtotime('-60 days',strtotime(date('Y-m-d'))));
+		$dates = date('Y-m-d');
+		if($date){
+			$dates = $date;
+		}
+		$past_seven_days =  date('Y-m-d', strtotime('-30 days',strtotime($dates)));
 		 $sql = "select count(a.date_posted) as number_of_sales from(
 					SELECT date_posted FROM `product_history` where date_posted >='".$past_seven_days."'
-					 GROUP BY date_posted) as a;";
+					 GROUP BY date_posted) as a";
 		
 		$res = $this->db->query($sql);
 	    $res = $res->row();
@@ -705,22 +709,30 @@ function overstock_offtake($from,$to,$items=array(), $days = 30){
 
 
 
+		$prev_from = $from;
+		$prev_to = $to;
+
 		$month = date("m",strtotime($to));
 		$year = date('Y-01-01');
 
-		$new_branch_checker  = $this->must_have_seven_days_sale();
-	    if($new_branch_checker >= 7 && $new_branch_checker <= 27){
-	      $month = '2';
-	    }
-
+	   
 		if($month == '1'){
 
 			$from = date('Y-11-01');
 			$to = date('Y-11-30');
 
+			$new_branch_checker  = $this->must_have_seven_days_sale($to);
+
 			$from = date('Y-m-d', strtotime('-1 year',strtotime($from)));
 			$to = date('Y-m-d', strtotime('-1 year',strtotime($to)));
 			$year = date('Y-m-d', strtotime('-1 year',strtotime($year)));
+
+
+		    if($new_branch_checker <= 7 ){
+		      $from = $prev_from;
+			  $to = $prev_to;
+		    }
+
 		}
 
 
