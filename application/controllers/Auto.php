@@ -858,8 +858,14 @@ provided that both dates are after 1970. Also only works for dates up to the yea
         echo date("Y-m-d h:i:s").PHP_EOL;
         $supplier = null;
        // $supplier = "REVMAI002";
+		$new_branch_checker  = $this->auto->must_have_seven_days_sale();
+    if($new_branch_checker <=6){
+      echo 'must have 7 days sales history';
+      exit();
+    }
+
 		$excluded_vendors=array();
-		$excluded_vendors = $this->auto->get_frequency_excluded();
+    $excluded_vendors = $this->auto->get_frequency_excluded();
 		//$excluded_vendors=implode(",", $excluded_vendors);
 		
         $supplier_frequency = $this->auto->get_frequency($user,BRANCH_USE,$supplier,array(),"1","1", null, null, "1",$excluded_vendors);

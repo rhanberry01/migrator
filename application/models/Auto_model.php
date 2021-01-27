@@ -685,11 +685,34 @@ function overstock_offtake($from,$to,$items=array(), $days = 30){
 	}
 
 
+	function must_have_seven_days_sale(){
+		$this->db = $this->load->database("default", true);
+		$past_seven_days =  date('Y-m-d', strtotime('-60 days',strtotime(date('Y-m-d'))));
+		 $sql = "select count(a.date_posted) as number_of_sales from(
+					SELECT date_posted FROM `product_history` where date_posted >='".$past_seven_days."'
+					 GROUP BY date_posted) as a;";
+		
+		$res = $this->db->query($sql);
+	    $res = $res->row();
+	    return $res->number_of_sales;
+
+
+	}
+
+
 	function get_srs_items_po_divisor($from,$to,$items=array()){
+
+
 
 
 		$month = date("m",strtotime($to));
 		$year = date('Y-01-01');
+
+		$new_branch_checker  = $this->must_have_seven_days_sale();
+	    if($new_branch_checker >= 7 && $new_branch_checker <= 27){
+	      $month = '2';
+	    }
+
 		if($month == '1'){
 
 			$from = date('Y-11-01');
