@@ -444,11 +444,11 @@ provided that both dates are after 1970. Also only works for dates up to the yea
     public function auto_generate_pr($sf){
         
 
-        echo $sf["frequency"].PHP_EOL;
+      echo $sf["frequency"].PHP_EOL;
 
-    	$this->po_set_settings($sf);
+    	  $this->po_set_settings($sf);
         echo "Set Settings" . PHP_EOL;  
-        $this->create_purchase_request();
+        $this->create_purchase_request($sf);
         echo "Set Form" . PHP_EOL; 
         $this->save_po($sf);
         echo "Set Save" . PHP_EOL;
@@ -462,9 +462,20 @@ provided that both dates are after 1970. Also only works for dates up to the yea
         $today = date("Y-m-d");
         $sup = $sf["supplier"];
         $bra = $sf["code"];
+        $frequency = $sf["frequency"];
         $from = $sf['from'];
         $to = $sf['to'];
         $within_period = 0;
+
+        if($sf["frequency"] == 'F4'){
+          $sf['delivery_day'] = 6;
+        }elseif($sf["frequency"] == 'F2'){
+          $sf['delivery_day'] = 13;
+        }else{
+          $sf['delivery_day'] = 29;
+        }
+
+
         if(isset($sf["within_period"]))
           if($sf["within_period"] == 1) $within_period = 1;
         $del_date = date('m/d/Y',(strtotime ( '+'.$sf['delivery_day'].' day' , strtotime ( $today ) ) ));
@@ -506,7 +517,7 @@ provided that both dates are after 1970. Also only works for dates up to the yea
         $this->session->set_userdata('po_setup',$po_setup);
     }
 
-	public function create_purchase_request(){
+	public function create_purchase_request($sf){
         if($this->session->userdata('po_setup')) $settings = $this->session->userdata('po_setup');
         else return true;
         $uom_piece = array('piece', 'pc', 'pcs','pck');
@@ -563,6 +574,8 @@ provided that both dates are after 1970. Also only works for dates up to the yea
 
 
 
+
+ 
       ## S  DECLUTTERING DATA ##  
          ## get max ave_offtake ## 
          ## rhan 8282020 ##
@@ -660,8 +673,39 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                 
           # E WHOLESALES PROTECTION ORDER #  
 
+
+        ## BULILIT STORES ## 
+            
+        if($branch_code == 'srsn'){
+          if($sf["frequency"] == 'F4'){
+            $ddays = 7;
+          }elseif($sf["frequency"] == 'F2'){
+            $ddays = 14;
+          }else{
+            $ddays = 30;
+        }
+
+           $bulilit_orders = $this->auto->get_max_bulilit_orders($ddays);
+           if(isset($bulilit_orders)){
+
+               $bulilit_items = array();
+               foreach ($bulilit_orders as $borders) {
+
+                        $b_o["po_detail_item"] = $borders->po_detail_item;
+                        $b_o["order_no"] = $borders->order_no;
+                        $b_o["stock_id"] = $borders->stock_id;
+                        $b_o["ord_qty"] = $borders->ord_qty;
+                        $bulilit_items[$borders->stock_id] = $b_o;
+                    }
+           }
+        }
+
+
+      ## BULILIT STORES ##  
+
             $avg_offtake_ls = array();
             $computations = array();
+            $bulilit_array = array();
 
             foreach ($divs as $des) {
                 $computation_history =  0;
@@ -738,8 +782,20 @@ provided that both dates are after 1970. Also only works for dates up to the yea
 
                     $item[$des->product_id]['avg_off_take'] = $avg_off_take;
                     $qoh_ = $item[$des->product_id]['qoh'] > 0 ? $item[$des->product_id]['qoh'] : 0;
-                     
-                    $sugg_po = (($avg_off_take > $filter_off_take ? $avg_off_take : 0) * $item[$des->product_id]['avg_off_take_x']) - $qoh_;
+                    
+                     $bulilit_ord = 0;
+                     $bulilit_comp = '';
+
+                    if(isset($bulilit_items[$des->product_id])){
+                      echo "with bulilit";
+                        $bulilit_array[] = $bulilit_items[$des->product_id]['po_detail_item'];
+                        $bulilit_ord = $bulilit_items[$des->product_id]['ord_qty'];
+                        $bulilit_comp = " Bulilit Store Orders : + ". $bulilit_ord." ";
+                    }
+                   
+                   
+
+                    $sugg_po = ((($avg_off_take > $filter_off_take ? $avg_off_take : 0) * $item[$des->product_id]['avg_off_take_x']) + $bulilit_ord ) - $qoh_;
 
                     /* echo $sugg_po.'<<-seugg_po';
                     echo '</br>'.'</br>';
@@ -776,7 +832,7 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                     }
 
 
-                    $comp_details['sugg_po'] = '(('.($avg_off_take > $filter_off_take ? $avg_off_take : 0).'*'.$item[$des->product_id]['avg_off_take_x'].')-'.$qoh_.") : ".$additional_computation;
+                    $comp_details['sugg_po'] = '(('.($avg_off_take > $filter_off_take ? $avg_off_take : 0).'*'.$item[$des->product_id]['avg_off_take_x'].')'.$bulilit_comp. ' - '.$qoh_.") : ".$additional_computation;
 
                     $qty = $sugg_po;
                     
@@ -812,7 +868,6 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                 }
             }
 
-   
 
         $discounts = $disc = array();
         $discs = $this->purify_discs($item);
@@ -844,12 +899,13 @@ provided that both dates are after 1970. Also only works for dates up to the yea
             $item[$item_id] = $det;
         }
 
-       //echo var_dump($computations);
+       
 
 
         $this->session->set_userdata('po_cart',$item); 
         $this->session->set_userdata('avg_offtake_ls',$avg_offtake_ls);
         $this->session->set_userdata('computations',$computations);
+        $this->session->set_userdata('bulilit_ids',$bulilit_array);
     }
 
 
@@ -954,6 +1010,7 @@ provided that both dates are after 1970. Also only works for dates up to the yea
                 }
             } 
         }
+
         $this->throw_po();
         $this->throw_po_computation_history();
         echo date("Y-m-d h:i:s").PHP_EOL;
@@ -991,9 +1048,10 @@ provided that both dates are after 1970. Also only works for dates up to the yea
     }
 
     public function save_po($sf , $auto_generate = 1, $draft = 1){
+
         $settings = $this->session->userdata("po_setup");
         $offtake_ls = $this->session->userdata("avg_offtake_ls");
-       
+        $bulilit_ids = $this->session->userdata("bulilit_ids");
         $computations = $this->session->userdata("computations");
         $totals = $this->get_po_cart_total(false);
         $net_total = $totals['amount'];
@@ -1072,7 +1130,15 @@ provided that both dates are after 1970. Also only works for dates up to the yea
 
                         $this->auto->insert_batch_average_offtake_history($offtake_ls);
                         $this->auto->insert_batch_computations_history($computations);
+
+                        if($bulilit_ids){
+
+                            $bulilit_ids = implode(",", $bulilit_ids);
+                            $this->auto->update_purch_bulilit_details($bulilit_ids);
+
+                        }
                         
+                        $this->session->unset_userdata('bulilit_ids');
                         $this->session->unset_userdata('computations');
                         $this->session->unset_userdata('avg_offtake_ls');
                         $this->session->unset_userdata('po_cart');

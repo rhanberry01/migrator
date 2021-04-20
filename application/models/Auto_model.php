@@ -85,6 +85,13 @@ class Auto_model extends CI_Model {
 	}
 
 
+	function update_purch_bulilit_details($data){
+			$this->db = $this->load->database("main_po", True);
+			$sql = "update purch_order_details SET rcv_qty = 1  where po_detail_item in(".$data.") and trans_type = 15";
+		$query = $this->db->query($sql);
+	}
+
+
 
 	public function get_max_last_offtake($supp_code = null){
 		$this->db = $this->load->database('default', TRUE);
@@ -682,6 +689,29 @@ function overstock_offtake($from,$to,$items=array(), $days = 30){
 	function auto_save_details($head,$items,$user_id, $auto_po = 0, $branch, $supplier){
 			$this->db = $this->load->database("default", True);
 			$this->db->insert("auto_purchase", array("date_added"=>date("Y-m-d"),"branch"=>$branch, "supplier"=>$supplier, "user_id" => $user_id, "po_head" => $head, "po_details" =>$items, "auto_po" => $auto_po ) );
+	}
+
+
+	function get_max_bulilit_orders($ddays = null){
+
+		$this->db= $this->load->database('main_po', TRUE);
+
+		$sql = "select a.po_detail_item,a.aa as order_no,a.stock_id,a.ord_qty from
+				(
+				select po_detail_item,max(order_no) as aa,stock_id,ord_qty,rcv_qty from purch_order_details WHERE order_no IN
+				(SELECT order_no FROM `purch_orders` where br_code ='srspalay'
+				and supplier_id = 'SANROB001' and auto_generate = 1
+				and trans_date >=DATE_SUB(CURDATE(), INTERVAL ".$ddays." DAY)) and trans_type = '15' GROUP BY stock_id) as a
+				where a.rcv_qty = 0";
+
+		$res = $this->db->query($sql);
+	    $res = $res->result();
+	
+		 return $res;
+
+
+		
+
 	}
 
 
