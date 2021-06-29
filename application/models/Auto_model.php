@@ -833,7 +833,7 @@ function overstock_offtake($from,$to,$items=array(), $days = 30){
 		$sql = "SELECT vendor_code FROM supplier_frequency_excluded";
 		$query = $this->db->query($sql);
 	    $result = $query->result();
-		
+		$excluded_vendor = array();
 		foreach ($result as $vendor_res) {
 			$excluded_vendors[] = "".$vendor_res->vendor_code."";
 		}
