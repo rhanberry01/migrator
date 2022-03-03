@@ -699,7 +699,7 @@ function overstock_offtake($from,$to,$items=array(), $days = 30){
 		$sql = "select a.po_detail_item,a.aa as order_no,a.stock_id,a.ord_qty from
 				(
 				select po_detail_item,max(order_no) as aa,stock_id,ord_qty,rcv_qty from purch_order_details WHERE order_no IN
-				(SELECT order_no FROM `purch_orders` where br_code ='srspalay'
+				(SELECT order_no FROM `purch_orders` where br_code in('srspalay','srsllano','srsdeparo','srstala','srssanana','srsbgt') 
 				and supplier_id = 'SANROB001' and auto_generate = 1
 				and trans_date >=DATE_SUB(CURDATE(), INTERVAL ".$ddays." DAY)) and trans_type = '15' GROUP BY stock_id) as a
 				where a.rcv_qty = 0";
