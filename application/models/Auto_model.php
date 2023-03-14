@@ -649,9 +649,16 @@ function overstock_offtake($from,$to,$items=array(), $days = 30){
 
     public function throw_po_computation_history(){
     	$this->db =$this->load->database("default", true);
-    	$this->db->where("throw", 0);
+		$sql = "select * from computations_history where throw = 0 and trandate >= ".date('Y-m-d', strtotime('-1 day'))." ";
+		$res = $this->db->query($sql);
+		echo $this->db->last_query();
+	   return $res = $res->result_array();
+
+		
+    /*$this->db->where("t", 0);
+		$this->db->where("throw", 0);
     	$query = $this->db->get("computations_history");	
-    	return $query->result_array();
+    	return $query->result_array();		$res = $this->db->query($sql);*/
     }
 
 

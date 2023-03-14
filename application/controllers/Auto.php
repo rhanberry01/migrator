@@ -348,7 +348,7 @@ public function throw_po_computation_history(){
 
         foreach($data as $row){
             $id = $row["id"];
-            echo $count++.PHP_EOL;
+            echo $id.PHP_EOL;
             $arrs[] = "(
                       '".$row['supplier_code']."',
                       '".$row['product_id']."',
@@ -365,12 +365,11 @@ public function throw_po_computation_history(){
 
         } 
        
-      
+
         $main = $this->auto->execute_branch_to_main_history('main_po', $sql.implode(',', $arrs));
-        if($main){
-          $test = $this->auto->execute_branch_to_main_history('default', $sql_up."(".implode(',', $ids).")");
+        $test = $this->auto->execute_branch_to_main_history('default', $sql_up."(".implode(',', $ids).")");
           
-        }
+   
 
         $data = $this->auto->throw_po_computation_history(); 
         $bool = (count($data) > 0) ? true : false; 
