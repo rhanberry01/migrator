@@ -357,7 +357,7 @@ public function throw_po_computation_history(){
                       '".$row['date_added']."',
                       ".$row['throw'].",
                       '".$row['branch']."',
-                      '".$row['description']."',
+                      '".preg_replace('/[^A-Za-z0-9\-]/', '', $row['description'])."',
                       '".$row['stock_id']."',
                       '".$row['uom']."',
                       ".$row['sugg_po'].")";
@@ -367,7 +367,11 @@ public function throw_po_computation_history(){
        
 
         $main = $this->auto->execute_branch_to_main_history('main_po', $sql.implode(',', $arrs));
-        $test = $this->auto->execute_branch_to_main_history('default', $sql_up."(".implode(',', $ids).")");
+		if($main){
+		 $test = $this->auto->execute_branch_to_main_history('default', $sql_up."(".implode(',', $ids).")");
+		 echo 'update';
+		}
+       
           
    
 
